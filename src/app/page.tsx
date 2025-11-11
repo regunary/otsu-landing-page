@@ -1,14 +1,16 @@
+// src/app/page.tsx
+
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { gsap } from "gsap";
 import { ScrambleTextPlugin } from "gsap/ScrambleTextPlugin";
-import { InfiniteLogoRow } from "@/components/InfiniteLogoRow";
+import { InfiniteLogoRow } from "@/components/InfiniteLogoRow"; // Component desktop
+import { MobileLogoGrid } from "@/components/MobileLogoGrid"; // [MỚI] Component mobile
 import AnimatedContact from "@/components/AnimatedMailLink";
 
 gsap.registerPlugin(ScrambleTextPlugin);
 
 // --- TẤT CẢ LOGO CHO MOBILE ---
-// Định nghĩa mảng này ở ngoài component để tránh khởi tạo lại
 const allMobileLogos = [
   { src: "/logos/HSBC.svg", alt: "HSBC", width: 144, height: 38 },
   { src: "/logos/Netflix.svg", alt: "Netflix", width: 106, height: 29 },
@@ -22,7 +24,6 @@ const allMobileLogos = [
   },
   { src: "/logos/Garena.svg", alt: "Garena", width: 137, height: 33 },
   { src: "/logos/VNG games.svg", alt: "VNG Games", width: 71, height: 50 },
-  // Logo EA.svg bị duplicate ở đây đã được XÓA
   { src: "/logos/Pixelmon.svg", alt: "Pixelmon", width: 125, height: 32 },
   {
     src: "/logos/Storygrounds.svg",
@@ -70,16 +71,6 @@ const allMobileLogos = [
 // TỔNG CỘNG: 19 LOGO
 
 export default function HomePage() {
-  const [isMobile, setIsMobile] = useState(false);
-
-  // mobile Detection
-  useEffect(() => {
-    const handleResize = () => setIsMobile(window.innerWidth < 640);
-    handleResize();
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
-  }, []);
-
   // scramble effect
   useEffect(() => {
     const tl = gsap.timeline({ defaults: { ease: "none" } });
@@ -122,28 +113,12 @@ export default function HomePage() {
 
       <section
         className={`
-    relative flex flex-col justify-end items-center gap-[10px] shrink-0
-    overflow-hidden bg-cover bg-center bg-no-repeat
-    ${
-      isMobile
-        ? "w-screen min-h-[100svh]" // ✅ full màn hình mobile
-        : "w-screen min-h-[60vh] sm:min-h-[70vh] lg:min-h-[80vh] xl:min-h-[90vh] px-4 sm:px-6 md:px-8"
-    }
-  `}
-        style={
-          isMobile
-            ? {
-                display: "flex",
-                width: "100vw",
-                height: "100svh",
-                padding: "622px 18px 78px 18px",
-                flexDirection: "column",
-                justifyContent: "flex-end",
-                alignItems: "center",
-                flexShrink: 0,
-              }
-            : undefined
-        }
+          relative flex flex-col justify-end items-center gap-[10px] shrink-0
+          overflow-hidden bg-cover bg-center bg-no-repeat
+          w-screen min-h-[100svh]
+          sm:min-h-[60vh] sm:px-4 md:px-8
+          lg:min-h-[80vh] xl:min-h-[90vh]
+        `}
       >
         {/* VIDEO */}
         <video
@@ -162,47 +137,32 @@ export default function HomePage() {
         {/* TEXT */}
         <div
           className={`
-      z-10 text-white font-[600] font-geist
-      absolute left-4 sm:left-8 md:left-[48px]
-      bottom-[18%] sm:bottom-[12%] md:bottom-[10%]
-      text-left
-    `}
+            z-10 text-white font-[600] font-geist
+            absolute left-4 sm:left-8 md:left-[48px]
+            bottom-[18%] sm:bottom-[12%] md:bottom-[10%]
+            text-left
+          `}
         >
-          {/* ✅ MOBILE TEXT with SCRAMBLE */}
-          {isMobile && (
-            <div className="text-scramble__content text-[35px] w-[90vw] max-w-[90vw] tracking-[-0.03em] leading-[1.05] font-normal">
-              <p id="scramble-text-original">
-                We Animate Like
-                <br />
-                Scientists. Or Madmen
-              </p>
-              <p className="text-scramble__text" aria-hidden="true">
-                <span id="scramble-text-1"></span>
-                <span> </span>
-                <span id="scramble-text-2"></span>
-                <span> </span>
-                <span id="scramble-text-3"></span>
-              </p>
-            </div>
-          )}
-
-          {/* DESKTOP/TABLET TEXT (giữ nguyên) */}
-          {!isMobile && (
-            <div className="hidden sm:block text-scramble__content text-3xl md:text-[56px] lg:text-[64px] xl:text-[72px] max-w-[80vw] md:max-w-[58vw] lg:max-w-[60vw] tracking-[-0.04em] leading-[0.95] font-normal">
-              <p id="scramble-text-original">
-                We Animate Like
-                <br />
-                Scientists. Or Madmen
-              </p>
-              <p className="text-scramble__text" aria-hidden="true">
-                <span id="scramble-text-1"></span>
-                <span> </span>
-                <span id="scramble-text-2"></span>
-                <span> </span>
-                <span id="scramble-text-3"></span>
-              </p>
-            </div>
-          )}
+          {/* Dùng 1 DOM, 2 text-size khác nhau */}
+          <div
+            className="
+              text-scramble__content text-[35px] w-[90vw] max-w-[90vw] tracking-[-0.03em] leading-[1.05] font-normal
+              sm:text-3xl md:text-[56px] lg:text-[64px] xl:text-[72px] sm:max-w-[80vw] md:max-w-[58vw] lg:max-w-[60vw] sm:tracking-[-0.04em] sm:leading-[0.95]
+            "
+          >
+            <p id="scramble-text-original">
+              We Animate Like
+              <br />
+              Scientists. Or Madmen
+            </p>
+            <p className="text-scramble__text" aria-hidden="true">
+              <span id="scramble-text-1"></span>
+              <span> </span>
+              <span id="scramble-text-2"></span>
+              <span> </span>
+              <span id="scramble-text-3"></span>
+            </p>
+          </div>
         </div>
       </section>
 
@@ -213,8 +173,9 @@ export default function HomePage() {
           flex flex-col md:flex-row flex-nowrap
           items-start justify-between
           px-4 sm:px-6 md:pl-[32px]
-          ${isMobile ? "mt-[80px] mb-[150px]" : "mt-12 md:mt-[141px]"}
-          ${!isMobile ? "gap-6 md:gap-[220px]" : ""}
+          mt-[80px] mb-[150px]
+          md:mt-[141px] md:mb-0
+          md:gap-6 md:gap-[220px]
         `}
       >
         {/* OUR CLIENTS BUTTON */}
@@ -250,8 +211,8 @@ export default function HomePage() {
               text-left
             "
           >
-            {/* MOBILE */}
-            <span className="block md:hidden w-screen -ml-4 px-4 text-[35px] leading-[1.15] sm:text-[32px] tracking-[-0.03em]">
+            {/* Dùng sm:hidden và hidden sm:block */}
+            <span className="block sm:hidden w-screen -ml-4 px-4 text-[35px] leading-[1.15] tracking-[-0.03em]">
               Otsu Labs is a creative <br />
               studio crafting frame
               <br />
@@ -260,7 +221,7 @@ export default function HomePage() {
             </span>
 
             {/* DESKTOP / TABLET */}
-            <span className="hidden md:block">
+            <span className="hidden sm:block">
               Otsu Labs is a creative studio <br />
               crafting frame-by-frame animation <br />
               for advertising, social media, tv, <br />
@@ -271,137 +232,143 @@ export default function HomePage() {
       </section>
 
       {/* ========== CLIENT LOGO SECTION (ĐÃ SỬA) ========== */}
-      <section className="flex flex-col items-center mt-12 md:mt-[141px] mb-12 md:mb-20 space-y-6 sm:space-y-8 md:space-y-[52px] px-2 sm:px-4 md:px-8">
-        {/* ====== MOBILE ====== */}
-        {isMobile && (
-          // Chỉ gọi 1 LẦN DUY NHẤT, truyền tất cả logo vào
-          <InfiniteLogoRow logos={allMobileLogos} />
-        )}
+      <section
+        className="
+          flex flex-col items-center 
+          mt-12 md:mt-[141px] mb-12 md:mb-20 
+          px-2 sm:px-4 md:px-8
+        "
+        // Đã bỏ space-y khỏi section
+      >
+        {/* ====== MOBILE (Dùng sm:hidden) ====== */}
+        <div className="sm:hidden w-full">
+          {/* Dùng component riêng cho mobile */}
+          <MobileLogoGrid logos={allMobileLogos} />
+        </div>
 
-        {/* ====== DESKTOP ====== */}
-        {!isMobile && (
-          <>
-            <InfiniteLogoRow
-              logos={[
-                { src: "/logos/HSBC.svg", alt: "HSBC", width: 144, height: 38 },
-                {
-                  src: "/logos/Netflix.svg",
-                  alt: "Netflix",
-                  width: 106,
-                  height: 29,
-                },
-                {
-                  src: "/logos/Budweiser.svg",
-                  alt: "Budweiser",
-                  width: 126,
-                  height: 39,
-                },
-                { src: "/logos/EA.svg", alt: "EA", width: 60, height: 60 },
-                {
-                  src: "/logos/VNG games.svg",
-                  alt: "VNG Games",
-                  width: 71,
-                  height: 50,
-                },
-                {
-                  src: "/logos/Tencent games.svg",
-                  alt: "Tencent Games",
-                  width: 97,
-                  height: 39,
-                },
-              ]}
-              direction="left"
-              speed={35}
-            />
+        {/* ====== DESKTOP (Dùng hidden sm:block) ====== */}
+        {/* Container này CÓ space-y để tạo khoảng cách giữa các hàng */}
+        <div className="hidden sm:block w-full space-y-6 sm:space-y-8 md:space-y-[52px]">
+          <InfiniteLogoRow
+            logos={[
+              { src: "/logos/HSBC.svg", alt: "HSBC", width: 144, height: 38 },
+              {
+                src: "/logos/Netflix.svg",
+                alt: "Netflix",
+                width: 106,
+                height: 29,
+              },
+              {
+                src: "/logos/Budweiser.svg",
+                alt: "Budweiser",
+                width: 126,
+                height: 39,
+              },
+              { src: "/logos/EA.svg", alt: "EA", width: 60, height: 60 },
+              {
+                src: "/logos/VNG games.svg",
+                alt: "VNG Games",
+                width: 71,
+                height: 50,
+              },
+              {
+                src: "/logos/Tencent games.svg",
+                alt: "Tencent Games",
+                width: 97,
+                height: 39,
+              },
+            ]}
+            direction="left"
+            speed={35}
+          />
 
-            <InfiniteLogoRow
-              logos={[
-                {
-                  src: "/logos/Garena.svg",
-                  alt: "Garena",
-                  width: 137,
-                  height: 33,
-                },
-                {
-                  src: "/logos/Pixelmon.svg",
-                  alt: "Pixelmon",
-                  width: 125,
-                  height: 32,
-                },
-                {
-                  src: "/logos/Mythic talent.svg",
-                  alt: "Mythic Talent",
-                  width: 146,
-                  height: 38,
-                },
-                {
-                  src: "/logos/Cluely.svg",
-                  alt: "Cluely",
-                  width: 164,
-                  height: 40,
-                },
-                {
-                  src: "/logos/Storygrounds.svg",
-                  alt: "Story Grounds",
-                  width: 142,
-                  height: 42,
-                },
-                {
-                  src: "/logos/Azuki.svg",
-                  alt: "Azuki",
-                  width: 200,
-                  height: 40,
-                },
-              ]}
-              direction="right"
-              speed={32}
-            />
+          <InfiniteLogoRow
+            logos={[
+              {
+                src: "/logos/Garena.svg",
+                alt: "Garena",
+                width: 137,
+                height: 33,
+              },
+              {
+                src: "/logos/Pixelmon.svg",
+                alt: "Pixelmon",
+                width: 125,
+                height: 32,
+              },
+              {
+                src: "/logos/Mythic talent.svg",
+                alt: "Mythic Talent",
+                width: 146,
+                height: 38,
+              },
+              {
+                src: "/logos/Cluely.svg",
+                alt: "Cluely",
+                width: 164,
+                height: 40,
+              },
+              {
+                src: "/logos/Storygrounds.svg",
+                alt: "Story Grounds",
+                width: 142,
+                height: 42,
+              },
+              {
+                src: "/logos/Azuki.svg",
+                alt: "Azuki",
+                width: 200,
+                height: 40,
+              },
+            ]}
+            direction="right"
+            speed={32}
+          />
 
-            <InfiniteLogoRow
-              logos={[
-                {
-                  src: "/logos/Neuro sama.svg",
-                  alt: "Neuro Sama",
-                  width: 88,
-                  height: 53,
-                },
-                { src: "/logos/Viu.svg", alt: "Viu", width: 75, height: 39 },
-                {
-                  src: "/logos/Sappy seals.svg",
-                  alt: "Sappy Seals",
-                  width: 75,
-                  height: 56,
-                },
-                {
-                  src: "/logos/Kamen america.svg",
-                  alt: "Kamen America",
-                  width: 71,
-                  height: 36,
-                },
-                {
-                  src: "/logos/Pudgy_Penguins_Logo.svg",
-                  alt: "Pudgy Penguins",
-                  width: 93,
-                  height: 49,
-                },
-                {
-                  src: "/logos/Aether studios.svg",
-                  alt: "Aether Studios",
-                  width: 58,
-                  height: 71,
-                },
-                {
-                  src: "/logos/Bucketman.svg",
-                  alt: "Bucket Man",
-                  width: 76,
-                  height: 76,
-                },
-              ]}
-              direction="left"
-              speed={38}
-            />
-          </>
-        )}
+          <InfiniteLogoRow
+            logos={[
+              {
+                src: "/logos/Neuro sama.svg",
+                alt: "Neuro Sama",
+                width: 88,
+                height: 53,
+              },
+              { src: "/logos/Viu.svg", alt: "Viu", width: 75, height: 39 },
+              {
+                src: "/logos/Sappy seals.svg",
+                alt: "Sappy Seals",
+                width: 75,
+                height: 56,
+              },
+              {
+                src: "/logos/Kamen america.svg",
+                alt: "Kamen America",
+                width: 71,
+                height: 36,
+              },
+              {
+                src: "/logos/Pudgy_Penguins_Logo.svg",
+                alt: "Pudgy Penguins",
+                width: 93,
+                height: 49,
+              },
+              {
+                src: "/logos/Aether studios.svg",
+                alt: "Aether Studios",
+                width: 58,
+                height: 71,
+              },
+              {
+                src: "/logos/Bucketman.svg",
+                alt: "Bucket Man",
+                width: 76,
+                height: 76,
+              },
+            ]}
+            direction="left"
+            speed={38}
+          />
+        </div>
       </section>
 
       {/* ========== CONTACT + FOOTER ========== */}
@@ -410,10 +377,10 @@ export default function HomePage() {
       <div className="w-full mx-auto px-4 sm:px-6 md:px-0 md:pl-[32px]">
         <div
           className={`
-      footer-text text-left tracking-wider leading-[16px] text-[#818181]
-      ${isMobile ? "text-[10px]" : "!text-[14px]"}
-      font-geist pb-8 md:pb-[40px]
-    `}
+            footer-text text-left tracking-wider leading-[16px] text-[#818181]
+            text-[10px] md:!text-[14px]
+            font-geist pb-8 md:pb-[40px]
+          `}
         >
           WE'RE UPDATING OUR WEBSITE RIGHT NOW.
           <br />

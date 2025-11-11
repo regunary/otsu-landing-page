@@ -1,6 +1,5 @@
 "use client";
-
-import { useEffect, useState } from "react";
+// [ĐÃ XÓA] useEffect, useState
 
 interface AnimatedContactProps {
   suppressHydrationWarning?: boolean;
@@ -11,23 +10,15 @@ const AnimatedContact = ({
 }: AnimatedContactProps) => {
   const text = "contact@otsulabs.com";
   const letters = text.split("");
-  const [isMobile, setIsMobile] = useState(true);
-
-  useEffect(() => {
-    const checkScreenSize = () => {
-      setIsMobile(window.innerWidth < 640);
-    };
-
-    checkScreenSize();
-    window.addEventListener("resize", checkScreenSize);
-    return () => window.removeEventListener("resize", checkScreenSize);
-  }, []);
+  // [ĐÃ XÓA] Toàn bộ state và useEffect của isMobile
 
   return (
     <div
-      className={`mt-4 sm:mt-8 md:mt-[232px] mb-16 sm:mb-20 ${
-        isMobile ? "md:mb-[181px]" : "md:mb-[230px] mb-[181px]"
-      } flex justify-center px-4`}
+      className={`
+        mt-4 sm:mt-8 md:mt-[232px] 
+        mb-16 sm:mb-20 md:mb-[230px]
+        flex justify-center px-4
+      `}
       suppressHydrationWarning={suppressHydrationWarning}
     >
       <div>
@@ -37,38 +28,28 @@ const AnimatedContact = ({
           rel="noreferrer"
           className={`
             inline-flex font-geist leading-tight
-            
-            ${
-              isMobile
-                ? "text-[24px] mt-[80px] mb-[218px]"
-                : "text-[60px] sm:text-2xl md:text-4xl lg:text-5xl xl:text-[55px] group"
-            }
+            text-[24px] mt-[80px] mb-[218px]
+            sm:text-2xl md:text-4xl lg:text-5xl xl:text-[55px] 
+            sm:mt-0 sm:mb-0
+            group
           `}
         >
           {letters.map((letter, i) => (
             <span
               key={i}
-              className={`relative inline-block overflow-hidden letter-wrapper ${
-                isMobile ? "" : "animated"
-              }`}
+              className={`relative inline-block overflow-hidden letter-wrapper`}
               style={{
-                ["--delay" as any]: isMobile ? "0ms" : `${i * 40}ms`,
+                ["--delay" as any]: `${i * 40}ms`,
               }}
             >
               {/* Top layer */}
-              <span
-                className={`letter letter-top block text-[#818181] ${
-                  isMobile ? "transform-none" : ""
-                }`}
-              >
+              <span className={`letter letter-top block text-[#818181]`}>
                 {letter === " " ? "\u00A0" : letter}
               </span>
 
               {/* Bottom layer */}
               <span
-                className={`letter letter-bottom absolute left-0 top-0 block text-[#818181] ${
-                  isMobile ? "transform-none" : ""
-                }`}
+                className={`letter letter-bottom absolute left-0 top-0 block text-[#818181]`}
               >
                 {letter === " " ? "\u00A0" : letter}
               </span>
