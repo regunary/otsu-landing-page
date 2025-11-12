@@ -257,3 +257,8 @@
     font-size: 10px;
   }
 }
+
+img {
+  image-rendering: -webkit-optimize-contrast;
+}
+

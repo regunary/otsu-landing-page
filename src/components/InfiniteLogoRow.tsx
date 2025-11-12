@@ -2,7 +2,6 @@
 
 "use client";
 import Image from "next/image";
-// [GIẢI PHÁP] Import thư viện
 import Marquee from "react-fast-marquee";
 
 interface Logo {
@@ -18,9 +17,8 @@ interface InfiniteLogoRowProps {
   speed?: number; // px per second
 }
 
-const DESKTOP_MARGIN = 50; // 25px mỗi bên
+const DESKTOP_MARGIN = 60; // Khoảng cách giữa các logo
 
-// Component này giờ CHỈ render marquee desktop
 export function InfiniteLogoRow({
   logos,
   direction = "left",
@@ -29,9 +27,9 @@ export function InfiniteLogoRow({
   return (
     <div
       className="relative w-full max-w-full overflow-hidden"
-      // [GIẢI PHÁP] Bỏ height cố định, dùng padding (py-6 = 24px)
-      // Điều này đảm bảo khoảng cách trực quan bằng nhau
-      style={{ padding: "30px 0" }}
+      style={{
+        padding: "32px 0", // khoảng cách đều giữa các dòng
+      }}
     >
       <Marquee
         direction={direction}
@@ -39,23 +37,30 @@ export function InfiniteLogoRow({
         pauseOnHover={true}
         gradient={false}
         autoFill={true}
+        className="overflow-visible"
       >
         {logos.map((logo, i) => (
           <div
             key={i}
             className="flex items-center justify-center flex-shrink-0"
-            style={{ margin: `0 ${DESKTOP_MARGIN}px` }}
+            style={{
+              margin: `0 ${DESKTOP_MARGIN}px`,
+              minWidth: `${logo.width}px`, // giữ chỗ trước khi ảnh load
+              height: `${logo.height}px`,
+            }}
           >
             <Image
-              src={logo.src || "/placeholder.svg"}
+              src={logo.src}
               alt={logo.alt}
               width={logo.width}
               height={logo.height}
-              className="client-logo select-none h-auto w-auto"
+              priority
+              unoptimized
+              loading="eager"
+              className="block object-contain select-none opacity-90 hover:opacity-100 transition-opacity duration-300"
               style={{
-                maxWidth: "100px",
-                display: "block",
-                objectFit: "contain",
+                maxHeight: logo.height,
+                maxWidth: logo.width,
               }}
               draggable={false}
             />
