@@ -1,7 +1,7 @@
 // src/app/page.tsx
 
 "use client";
-import { useEffect } from "react";
+import { useEffect, useRef, useState } from "react";
 import { gsap } from "gsap";
 import { ScrambleTextPlugin } from "gsap/ScrambleTextPlugin";
 import { InfiniteLogoRow } from "@/components/InfiniteLogoRow"; // Component desktop
@@ -71,6 +71,26 @@ const allMobileLogos = [
 // TỔNG CỘNG: 19 LOGO
 
 export default function HomePage() {
+  // video ref + play state
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const [isPlaying, setIsPlaying] = useState(false);
+
+  const handleWatchClick = () => {
+    const video = videoRef.current;
+    if (!video) return;
+
+    if (isPlaying) {
+      video.pause();
+      video.muted = true;
+      setIsPlaying(false);
+    } else {
+      video.muted = false;
+      video.currentTime = 0;
+      video.play();
+      setIsPlaying(true);
+    }
+  };
+
   // scramble effect
   useEffect(() => {
     const tl = gsap.timeline({ defaults: { ease: "none" } });
@@ -109,32 +129,48 @@ export default function HomePage() {
 
   return (
     <main className="min-h-screen bg-white text-black" suppressHydrationWarning>
-      {/* ========== HERO VIDEO + TEXT SCRAMBLE ========== */}
-
       <section
         className={`
-          relative flex flex-col justify-end items-center gap-[10px] shrink-0
+          relative group flex flex-col justify-end items-center gap-[10px] shrink-0
           overflow-hidden bg-cover bg-center bg-no-repeat
           w-screen min-h-[100svh]
           sm:min-h-[60vh] sm:px-4 md:px-8
           lg:min-h-[80vh] xl:min-h-[90vh]
         `}
+        onClick={handleWatchClick} 
       >
         {/* VIDEO */}
         <video
+          ref={videoRef}
           src="/OTSULAB.mov"
-          autoPlay
-          loop
           muted
           playsInline
-          aria-hidden="true"
-          className="absolute inset-0 w-full h-full object-cover object-center"
+          loop={false}
+          preload="metadata" 
+          poster="/hero.png" 
+          className="absolute inset-0 w-full h-full object-cover object-center transition-all duration-500 group-hover:brightness-75 cursor-none"
         />
 
-        {/* Overlay */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-black/10 to-transparent" />
+        {/* OVERLAY MỜ */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-black/10 to-transparent pointer-events-none" />
 
-        {/* TEXT */}
+        {/* NÚT WATCH */}
+        <button
+          className={`
+            absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2
+            z-20 flex items-center justify-center
+            px-6 h-[42px]
+            rounded-full border border-white text-white text-base font-geist
+            bg-black/40 backdrop-blur-sm transition-all duration-300
+            opacity-0 scale-90 group-hover:opacity-100 group-hover:scale-100
+            hover:bg-white hover:text-black
+            cursor-none
+          `}
+        >
+          {isPlaying ? "Pause" : "Watch"}
+        </button>
+
+        {/* TEXT SCRAMBLE */}
         <div
           className={`
             z-10 text-white font-[600] font-geist
@@ -143,11 +179,11 @@ export default function HomePage() {
             text-left
           `}
         >
-          {/* Dùng 1 DOM, 2 text-size khác nhau */}
           <div
             className="
               text-scramble__content text-[35px] w-[90vw] max-w-[90vw] tracking-[-0.03em] leading-[1.05] font-normal
-              sm:text-3xl md:text-[56px] lg:text-[64px] xl:text-[72px] sm:max-w-[80vw] md:max-w-[58vw] lg:max-w-[60vw] sm:tracking-[-0.04em] sm:leading-[0.95]
+              sm:text-3xl md:text-[56px] lg:text-[64px] xl:text-[72px] sm:max-w-[80vw] md:max-w-[58vw] lg:max-w-[60vw]
+              sm:tracking-[-0.04em] sm:leading-[0.95]
             "
           >
             <p id="scramble-text-original">
@@ -156,15 +192,19 @@ export default function HomePage() {
               Scientists. Or Madmen
             </p>
             <p className="text-scramble__text" aria-hidden="true">
-              <span id="scramble-text-1"></span>
-              <span> </span>
-              <span id="scramble-text-2"></span>
-              <span> </span>
-              <span id="scramble-text-3"></span>
+              <span id="scramble-text-1" className="whitespace-nowrap"></span>
+              <br />
+              <span className="whitespace-nowrap">
+                <span id="scramble-text-2"></span>
+                <span> </span>
+                <span id="scramble-text-3"></span>
+              </span>
             </p>
           </div>
         </div>
       </section>
+
+
 
       {/* ========== OUR CLIENTS + DESCRIPTION ========== */}
       <section
@@ -186,7 +226,7 @@ export default function HomePage() {
               tracking-[0.15em] font-geist-mono font-medium
               border border-black rounded-full
               px-5 py-[6px]
-              hover:bg-black hover:text-white
+            bg-black text-white
               transition-colors duration-300
               w-auto h-[34px] whitespace-nowrap
             "
@@ -245,10 +285,16 @@ export default function HomePage() {
           {/* Dùng component riêng cho mobile */}
           <MobileLogoGrid logos={allMobileLogos} />
         </div>
-
+       
         {/* ====== DESKTOP (Dùng hidden sm:block) ====== */}
+        {/* lớp fade 2 bên */}
+       
+
         {/* Container này CÓ space-y để tạo khoảng cách giữa các hàng */}
-        <div className="hidden sm:block w-full space-y-6 sm:space-y-8 md:space-y-[52px]">
+        {/* <div className="hidden sm:block w-full space-y-6 sm:space-y-8 md:space-y-[52px]"> */}
+        <div className="relative w-full mt-8 mb-0 sm:mb-8">
+          <div className="pointer-events-none absolute inset-y-0 left-0 w-[250px] bg-gradient-to-r from-white to-transparent z-10"></div>
+          <div className="pointer-events-none absolute inset-y-0 right-0 w-[250px] bg-gradient-to-l from-white to-transparent z-10"></div>
           <InfiniteLogoRow
             logos={[
               { src: "/logos/HSBC.svg", alt: "HSBC", width: 144, height: 38 },

@@ -18,7 +18,7 @@ interface InfiniteLogoRowProps {
   speed?: number; // px per second
 }
 
-const DESKTOP_MARGIN = 25; // 25px mỗi bên
+const DESKTOP_MARGIN = 50; // 25px mỗi bên
 
 // Component này giờ CHỈ render marquee desktop
 export function InfiniteLogoRow({
@@ -31,7 +31,7 @@ export function InfiniteLogoRow({
       className="relative w-full max-w-full overflow-hidden"
       // [GIẢI PHÁP] Bỏ height cố định, dùng padding (py-6 = 24px)
       // Điều này đảm bảo khoảng cách trực quan bằng nhau
-      style={{ padding: "24px 0" }}
+      style={{ padding: "30px 0" }}
     >
       <Marquee
         direction={direction}
