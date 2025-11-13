@@ -7,6 +7,7 @@ import { ScrambleTextPlugin } from "gsap/ScrambleTextPlugin";
 import { InfiniteLogoRow } from "@/components/InfiniteLogoRow"; // Component desktop
 import { MobileLogoGrid } from "@/components/MobileLogoGrid"; // [MỚI] Component mobile
 import AnimatedContact from "@/components/AnimatedMailLink";
+import { motion, AnimatePresence } from "framer-motion";
 
 gsap.registerPlugin(ScrambleTextPlugin);
 
@@ -74,21 +75,43 @@ export default function HomePage() {
   // video ref + play state
   const videoRef = useRef<HTMLVideoElement>(null);
   const [isPlaying, setIsPlaying] = useState(false);
+  const [isHovered, setIsHovered] = useState(false);
+  const [cursorPos, setCursorPos] = useState({ x: 0, y: 0 });
 
-  const handleWatchClick = () => {
+  const [showOverlay, setShowOverlay] = useState(true);
+
+  const handleWatchClick = async () => {
     const video = videoRef.current;
     if (!video) return;
 
-    if (isPlaying) {
+    try {
+      // Ẩn chữ + ẩn nút Watch/Pause chạy theo chuột
+      setShowOverlay(false);
+      setIsHovered(false);
+
+      // Reset video
       video.pause();
-      video.muted = true;
-      setIsPlaying(false);
-    } else {
-      video.muted = false;
       video.currentTime = 0;
-      video.play();
+
+      await new Promise((resolve) => setTimeout(resolve, 50));
+
+      video.muted = false;
+      video.controls = true;
+
+      await video.play();
+
       setIsPlaying(true);
+    } catch (err) {
+      console.error("Video playback failed:", err);
     }
+  };
+
+  
+
+  // Cập nhật vị trí chuột khi hover video
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    setCursorPos({ x: e.clientX - rect.left, y: e.clientY - rect.top });
   };
 
   // scramble effect
@@ -131,47 +154,67 @@ export default function HomePage() {
     <main className="min-h-screen bg-white text-black" suppressHydrationWarning>
       <section
         className={`
-          relative group flex flex-col justify-end items-center gap-[10px] shrink-0
+          relative flex flex-col justify-end items-center gap-[10px] shrink-0
           overflow-hidden bg-cover bg-center bg-no-repeat
           w-screen min-h-[100svh]
           sm:min-h-[60vh] sm:px-4 md:px-8
           lg:min-h-[80vh] xl:min-h-[90vh]
         `}
-        onClick={handleWatchClick} 
+        onClick={handleWatchClick}
+        onMouseEnter={() => setIsHovered(true)}
+        onMouseLeave={() => setIsHovered(false)}
+        onMouseMove={handleMouseMove}
       >
-        {/* VIDEO */}
+       {/* VIDEO */}
         <video
           ref={videoRef}
-          src="/OTSULAB.mov"
-          muted
+          src="https://download-video-ak.vimeocdn.com/v3-1/playback/55cd7058-47c9-4279-9b9a-6e635105b7d0/1a6db3a9-3244d0e4?__token__=st=1763000289~exp=1763003889~acl=%2Fv3-1%2Fplayback%2F55cd7058-47c9-4279-9b9a-6e635105b7d0%2F1a6db3a9-3244d0e4%2A~hmac=b00ab2c43b128e53d217839ccda7bf1b38d5f6423c566abd0e1c6648cce31e3a&r=dXMtY2VudHJhbDE%3D"
+          autoPlay
+          muted={!isPlaying}      // muted khi chưa click
+          loop
           playsInline
-          loop={false}
-          preload="metadata" 
-          poster="/hero.png" 
-          className="absolute inset-0 w-full h-full object-cover object-center transition-all duration-500 group-hover:brightness-75 cursor-none"
+          controls={isPlaying}    // bật controls sau khi click
+          className="
+            absolute inset-0 w-full h-full object-cover object-center
+            transition-all duration-300
+          "
+          onLoadedMetadata={() => {
+            // Khi video load xong, play ngay
+            videoRef.current?.play();
+          }}
         />
 
-        {/* OVERLAY MỜ */}
+
+        {/* Overlay mờ */}
         <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-black/10 to-transparent pointer-events-none" />
 
-        {/* NÚT WATCH */}
-        <button
-          className={`
-            absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2
-            z-20 flex items-center justify-center
-            px-6 h-[42px]
-            rounded-full border border-white text-white text-base font-geist
-            bg-black/40 backdrop-blur-sm transition-all duration-300
-            opacity-0 scale-90 group-hover:opacity-100 group-hover:scale-100
-            hover:bg-white hover:text-black
-            cursor-none
-          `}
-        >
-          {isPlaying ? "Pause" : "Watch"}
-        </button>
+        {/* 🎯 Nút Watch chạy theo chuột */}
+        <AnimatePresence>
+        {isHovered && showOverlay && (
+          <motion.div
+            className="absolute z-20 pointer-events-none"
+            style={{
+              left: `${cursorPos.x}px`,
+              top: `${cursorPos.y}px`,
+              transform: "translate(-50%, -50%)", // căn giữa đúng con trỏ
+              willChange: "transform",
+            }}
+          >
+            <motion.button
+              className="flex items-center justify-center px-5 h-[38px]
+                        rounded-full border border-white text-white text-sm font-geist
+                        bg-black/40 backdrop-blur-md shadow-[0_0_15px_rgba(255,255,255,0.25)]
+                        transition-all duration-150 pointer-events-none"
+            >
+              {isPlaying ? "Pause" : "Watch"}
+            </motion.button>
+          </motion.div>
+        )}
+        </AnimatePresence>
 
-        {/* TEXT SCRAMBLE */}
-        <div
+        {/* 🧠 TEXT SCRAMBLE */}
+        {showOverlay && (
+          <div
           className={`
             z-10 text-white font-[600] font-geist
             absolute left-4 sm:left-8 md:left-[48px]
@@ -181,8 +224,10 @@ export default function HomePage() {
         >
           <div
             className="
-              text-scramble__content text-[35px] w-[90vw] max-w-[90vw] tracking-[-0.03em] leading-[1.05] font-normal
-              sm:text-3xl md:text-[56px] lg:text-[64px] xl:text-[72px] sm:max-w-[80vw] md:max-w-[58vw] lg:max-w-[60vw]
+              text-scramble__content text-[35px] w-[90vw] max-w-[90vw]
+              tracking-[-0.03em] leading-[1.05] font-normal
+              sm:text-3xl md:text-[56px] lg:text-[64px] xl:text-[72px]
+              sm:max-w-[80vw] md:max-w-[58vw] lg:max-w-[60vw]
               sm:tracking-[-0.04em] sm:leading-[0.95]
             "
           >
@@ -202,7 +247,10 @@ export default function HomePage() {
             </p>
           </div>
         </div>
+        )}
+        
       </section>
+
 
 
 
@@ -281,18 +329,17 @@ export default function HomePage() {
         // Đã bỏ space-y khỏi section
       >
         {/* ====== MOBILE (Dùng sm:hidden) ====== */}
-        <div className="sm:hidden w-full">
-          {/* Dùng component riêng cho mobile */}
+        <div className="md:hidden w-full">
           <MobileLogoGrid logos={allMobileLogos} />
         </div>
-       
+              
         {/* ====== DESKTOP (Dùng hidden sm:block) ====== */}
         {/* lớp fade 2 bên */}
        
 
         {/* Container này CÓ space-y để tạo khoảng cách giữa các hàng */}
         {/* <div className="hidden sm:block w-full space-y-6 sm:space-y-8 md:space-y-[52px]"> */}
-        <div className="relative w-full mt-8 mb-0 sm:mb-8">
+        <div className="hidden md:block w-full relative mt-8">
           <div className="pointer-events-none absolute inset-y-0 left-0 w-[250px] bg-gradient-to-r from-white to-transparent z-10"></div>
           <div className="pointer-events-none absolute inset-y-0 right-0 w-[250px] bg-gradient-to-l from-white to-transparent z-10"></div>
           <InfiniteLogoRow
