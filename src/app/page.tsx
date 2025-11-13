@@ -168,7 +168,7 @@ export default function HomePage() {
        {/* VIDEO */}
         <video
           ref={videoRef}
-          src="https://download-video-ak.vimeocdn.com/v3-1/playback/55cd7058-47c9-4279-9b9a-6e635105b7d0/1a6db3a9-3244d0e4?__token__=st=1763000289~exp=1763003889~acl=%2Fv3-1%2Fplayback%2F55cd7058-47c9-4279-9b9a-6e635105b7d0%2F1a6db3a9-3244d0e4%2A~hmac=b00ab2c43b128e53d217839ccda7bf1b38d5f6423c566abd0e1c6648cce31e3a&r=dXMtY2VudHJhbDE%3D"
+          src="https://player.vimeo.com/progressive_redirect/playback/1136323072/rendition/1080p/file.mp4%20%281080p%29.mp4?loc=external&signature=b70bd91614f4b9dbb7a360c69216c48e67a156f995f785f6a3f4292f1384801a"
           autoPlay
           muted={!isPlaying}      // muted khi chưa click
           loop
